@@ -26,7 +26,7 @@ Whether you import customers from Shopify in bulk or when you import orders, use
 |**Customer Import from Shopify**|Select **All Customers** if you plan to import customers from Shopify in bulk; either manually using the **Sync Customers** action or via the job queue for recurring updates. Regardless of the selection, the customer information will always be imported together with the order. However, the use of this information depends on the **Shopify Customer Templates** and settings in the **Customer Mapping Type** field.|
 |**Customer Mapping Type**|Define how you want the connector to perform the mapping.<br>- **By Email/Phone** if you want the connector to map the imported Shopify customer to an existing customer in [!INCLUDE[prod_short](../includes/prod_short.md)] using email and phone.</br>- **By Bill-to Info** if you want the connector to use the address of the invoice recipient to map the imported Shopify customer to an existing customer in [!INCLUDE[prod_short](../includes/prod_short.md)].</br>- Select **Always Take the Default Customer** if you want the system to use a customer from the **Default Customer No.** field. |
 |**Shopify Can Update Customers**| Select this field if you want the connector to update the customers it finds when either of the **By Email/Phone** or **By Bill-to Info** options are selected in the **Customer Mapping Type** field.|
-|**Auto Create Unknown Customers**| Select this field if you want the connector to create missing customers when the **By Email/Phone** or **By Bill-to Info** options are selected in the **Customer Mapping Type** field. A new customer will be created using imported data and the **Customer Template Code** defined on the **Shopify Shop Card** or **Shopify Customer Template** pages. Notice that the Shopify customer must have at least one address. Orders created via Shopify POS sales channel are often missing address details. If this option isn't enabled, you'll need to create a customer manually and link it to the Shopify customer.|
+|**Auto Create Unknown Customers**| Select this field if you want the connector to create missing customers when the **By Email/Phone** or **By Bill-to Info** options are selected in the **Customer Mapping Type** field. A new customer will be created using imported data and the **Customer Template Code** defined on the **Shopify Shop Card** or **Shopify Customer Template** pages. Email and Notice that the Shopify customer must have at least one address. Orders created via Shopify POS sales channel are often missing address details. If this option isn't enabled, you'll need to create a customer manually and link it to the Shopify customer.|
 |**Customer Template Code**|This field is used together with **Auto Create Unknown Customers**.<br>- Choose the default template to be used for automatically created customers. Make sure that the selected template contains the mandatory fields, such as the **Gen. Business Posting Group**, **Customer Posting Group**, and value-added tax (VAT)- or tax-related fields.<br>- You can define templates per country/region on the **Shopify Customer Templates** page, which is useful for proper tax calculation. <br>- Learn more at [Set up Taxes](setup-taxes.md).|
 
 ### Customer template per country/region
@@ -42,6 +42,24 @@ You can do the following for each customer using the **Shopify Customer Template
 
 > [!NOTE]  
 > The country codes are ISO 3166-1 alpha-2 country codes. Learn more at [Country Code](https://help.shopify.com/en/api/custom-storefronts/storefront-api/reference/enum/countrycode).
+
+### Populate customer information in Business Central
+
+A customer in Shopify has a first name, family name, email, and/or phone number. In addition, a customer might also have multiple addresses that might contain a company and address in addition to their first name, family name, and/or phone number. The following table describes how data from customer and address is imported into [!INCLUDE[prod_short](../includes/prod_short.md)]. Note that while customer might have multiple addresses, only one is marked as default and is used to populate fields in [!INCLUDE[prod_short](../includes/prod_short.md)].
+
+|[!INCLUDE[prod_short](../includes/prod_short.md)]|Field when imported from Shopify|
+|------|-----------------|
+|Name| Based on the selection in the **Name Source** field, can contain first and last name, or company from the default address. |
+|Name 2|Based on the selection in the **Name 2 Source** field, can contain first and last name, or company from the default address. </br>Field populated only if **Name** already has value, otherwise the extracted value will be assigned to the **Name** field instead. |
+|Contact |Based selection in the **Contact Source** field, can contain first and last name, or company from the default address. </br>Field populated only if **Name** already has value, otherwise the extracted value will be assigned to the **Name** field instead. |
+|Country / Region Code| Country from the default address. Notice that mapping is done by ISO code|
+|County | State/Province from the default address. Based on selection in the **State Source** can be code or description.|
+|Post Code| Zip code from the default address|
+|City| City from the default address|
+|Phone| Phone from the default address. If phone for default address is not defined, then phone from the customer.|
+|Email|Email from the customer.|
+
+The **Tax Area Code**, **Tax Liable**, **VAT Bus. Posting Group** are from the [customer template](#customer-template-per-countryregion). 
 
 ## Export customers to Shopify
 
@@ -76,7 +94,7 @@ A customer in Shopify has a first name, family name, email, and/or phone number.
 |2|**Name 2**|If the **Name 2** field is filled in and the **Name 2 Source** field in the **Shopify Shop Card** contains either the *First Name and Last Name* or *Last Name and First Name* option to define how to split the values.|
 |3|**Name**|Lowest priority, if the **Name** field is filled and the **Name Source** field in the **Shopify Shop Card** contains either the *First Name and Last Name* or *Last Name and First Name* options to define how to split the values.|
 
-A customer in Shopify also has a default address. The address might contain a company and address in addition to their first name, family name, email, and/or phone number. You can populate the **Company** field based on data from the customer card in [!INCLUDE[prod_short](../includes/prod_short.md)].
+A customer in Shopify also has a default address. The address might contain a company and address in addition to their first name, family name, and/or phone number. You can populate the **Company** field based on data from the customer card in [!INCLUDE[prod_short](../includes/prod_short.md)].
 
 |Priority|Field in the customer card|Description|
 |------|------|-----------|
@@ -84,7 +102,6 @@ A customer in Shopify also has a default address. The address might contain a co
 |2|**Name 2**|Lowest priority, if the **Name 2 Source** field in the **Shopify Shop Card** contains *Company Name*.|
 
 For addresses where the county/province is used, select **Code** or **Name** in the **County Source** field on the **Shopify Shop Card** page. The code or name specifies the type of data stored in [!INCLUDE[prod_short](../includes/prod_short.md)] in the **County** field. Remember to initialize customer templates per country/region so that the county code/name mapping is ready. 
-
 
 ## Sync customers
 
